@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Text Storage</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f4f4f9;
+      }
+      header {
+        background-color: #333;
+        color: #fff;
+        padding: 10px 20px;
+        width: 100%;
+        text-align: center;
+      }
+      main {
+        width: 100%;
+        max-width: 600px;
+        padding: 20px;
+      }
+      textarea,
+      button {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .post {
+        background: #fff;
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-size: 14pt;
+        text-align: justify;
+      }
+      .post .date {
+        font-size: 0.9em;
+        color: #555;
+        margin-bottom: 5px;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Text Storage</h1>
+    </header>
+    <main>
+      <form id="loginForm">
+        <input type="text" id="username" placeholder="Username" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+      </form>
+      <form id="postForm" class="hidden">
+        <textarea
+          id="postContent"
+          rows="4"
+          placeholder="Write your text here..."
+        ></textarea>
+        <button type="submit">Add Post</button>
+      </form>
+      <div id="posts"></div>
+    </main>
+
+    <script>
+      const adminCredentials = {
+        username: "admin",
+        password: "12345678",
+      };
+
+      // Load posts from localStorage
+      document.addEventListener("DOMContentLoaded", function () {
+        const savedPosts = JSON.parse(localStorage.getItem("posts")) || [];
+        savedPosts.forEach((post) => addPost(post.content, post.date));
+
+        // Show login form initially
+        document.getElementById("loginForm").classList.remove("hidden");
+        document.getElementById("postForm").classList.add("hidden");
+      });
+
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+
+          if (
+            username === adminCredentials.username &&
+            password === adminCredentials.password
+          ) {
+            alert("Login successful!");
+            document.getElementById("loginForm").classList.add("hidden");
+            document.getElementById("postForm").classList.remove("hidden");
+          } else {
+            alert("Invalid credentials!");
+          }
+        });
+
+      document
+        .getElementById("postForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          const content = document.getElementById("postContent").value;
+          if (content.trim() !== "") {
+            const now = new Date().toLocaleString();
+            addPost(content, now);
+            savePost(content, now);
+            document.getElementById("postContent").value = "";
+          }
+        });
+
+      function addPost(content, date) {
+        const postDiv = document.createElement("div");
+        postDiv.className = "post";
+
+        const dateDiv = document.createElement("div");
+        dateDiv.className = "date";
+        dateDiv.textContent = `Posted on: ${date}`;
+
+        const contentDiv = document.createElement("div");
+        contentDiv.innerHTML = content;
+
+        postDiv.appendChild(dateDiv);
+        postDiv.appendChild(contentDiv);
+
+        document.getElementById("posts").prepend(postDiv);
+      }
+
+      function savePost(content, date) {
+        const savedPosts = JSON.parse(localStorage.getItem("posts")) || [];
+        savedPosts.unshift({ content, date });
+        localStorage.setItem("posts", JSON.stringify(savedPosts));
+      }
+    </script>
+  </body>
+</html>
